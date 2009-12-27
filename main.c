@@ -52,7 +52,7 @@ enum program_return_codes {
 
 // Some systems don't define posix_openpt
 #ifndef HAVE_POSIX_OPENPT
-int
+    int
 posix_openpt(int flags)
 {
     return open("/dev/ptmx", flags);
@@ -64,23 +64,23 @@ int runprogram( int argc, char *argv[] );
 struct {
     enum { PWT_STDIN, PWT_FILE, PWT_FD, PWT_PASS } pwtype;
     union {
-	const char *filename;
-	int fd;
-	const char *password;
+        const char *filename;
+        int fd;
+        const char *password;
     } pwsrc;
 } args;
 
 static void show_help()
 {
     printf("Usage: " PACKAGE_NAME " [-f|-d|-p|-e] [-hV] command parameters\n"
-	    "   -f filename   Take password to use from file\n"
-	    "   -d number     Use number as file descriptor for getting password\n"
-	    "   -p password   Provide password as argument (security unwise)\n"
-	    "   -e            Password is passed as env-var \"SSHPASS\"\n"
-	    "   With no parameters - password will be taken from stdin\n\n"
-	    "   -h            Show help (this screen)\n"
-	    "   -V            Print version information\n"
-	    "At most one of -f, -d, -p or -e should be used\n");
+            "   -f filename   Take password to use from file\n"
+            "   -d number     Use number as file descriptor for getting password\n"
+            "   -p password   Provide password as argument (security unwise)\n"
+            "   -e            Password is passed as env-var \"SSHPASS\"\n"
+            "   With no parameters - password will be taken from stdin\n\n"
+            "   -h            Show help (this screen)\n"
+            "   -V            Print version information\n"
+            "At most one of -f, -d, -p or -e should be used\n");
 }
 
 // Parse the command line. Fill in the "args" global struct with the results. Return argv offset
@@ -99,67 +99,67 @@ static int parse_options( int argc, char *argv[] )
     error=RETURN_CONFLICTING_ARGUMENTS; }
 
     while( (opt=getopt(argc, argv, "+f:d:p:heV"))!=-1 && error==-1 ) {
-	switch( opt ) {
-	case 'f':
-	    // Password should come from a file
-	    VIRGIN_PWTYPE;
-	    
-	    args.pwtype=PWT_FILE;
-	    args.pwsrc.filename=optarg;
-	    break;
-	case 'd':
-	    // Password should come from an open file descriptor
-	    VIRGIN_PWTYPE;
+        switch( opt ) {
+            case 'f':
+                // Password should come from a file
+                VIRGIN_PWTYPE;
 
-	    args.pwtype=PWT_FD;
-	    args.pwsrc.fd=atoi(optarg);
-	    break;
-	case 'p':
-	    // Password is given on the command line
-	    VIRGIN_PWTYPE;
+                args.pwtype=PWT_FILE;
+                args.pwsrc.filename=optarg;
+                break;
+            case 'd':
+                // Password should come from an open file descriptor
+                VIRGIN_PWTYPE;
 
-	    args.pwtype=PWT_PASS;
-	    args.pwsrc.password=strdup(optarg);
-            
-            // Hide the original password from the command line
-            {
-                int i;
+                args.pwtype=PWT_FD;
+                args.pwsrc.fd=atoi(optarg);
+                break;
+            case 'p':
+                // Password is given on the command line
+                VIRGIN_PWTYPE;
 
-                for( i=0; optarg[i]!='\0'; ++i )
-                    optarg[i]='z';
-            }
-	    break;
-	case 'e':
-	    VIRGIN_PWTYPE;
+                args.pwtype=PWT_PASS;
+                args.pwsrc.password=strdup(optarg);
 
-	    args.pwtype=PWT_PASS;
-	    args.pwsrc.password=getenv("SSHPASS");
-            if( args.pwsrc.password==NULL ) {
-                fprintf(stderr, "sshpass: -e option given but SSHPASS environment variable not set\n");
+                // Hide the original password from the command line
+                {
+                    int i;
 
+                    for( i=0; optarg[i]!='\0'; ++i )
+                        optarg[i]='z';
+                }
+                break;
+            case 'e':
+                VIRGIN_PWTYPE;
+
+                args.pwtype=PWT_PASS;
+                args.pwsrc.password=getenv("SSHPASS");
+                if( args.pwsrc.password==NULL ) {
+                    fprintf(stderr, "sshpass: -e option given but SSHPASS environment variable not set\n");
+
+                    error=RETURN_INVALID_ARGUMENTS;
+                }
+                break;
+            case '?':
+            case ':':
                 error=RETURN_INVALID_ARGUMENTS;
-            }
-	    break;
-	case '?':
-	case ':':
-	    error=RETURN_INVALID_ARGUMENTS;
-	    break;
-	case 'h':
-	    error=RETURN_NOERROR;
-	    break;
-	case 'V':
-	    printf("%s (C) 2006-2008 Lingnu Open Source Consulting Ltd.\n"
-		    "This program is free software, and can be distributed under the terms of the GPL\n"
-		    "See the COPYING file for more information.\n", PACKAGE_STRING );
-	    exit(0);
-	    break;
-	}
+                break;
+            case 'h':
+                error=RETURN_NOERROR;
+                break;
+            case 'V':
+                printf("%s (C) 2006-2008 Lingnu Open Source Consulting Ltd.\n"
+                        "This program is free software, and can be distributed under the terms of the GPL\n"
+                        "See the COPYING file for more information.\n", PACKAGE_STRING );
+                exit(0);
+                break;
+        }
     }
 
     if( error>=0 )
-	return -(error+1);
+        return -(error+1);
     else
-	return optind;
+        return optind;
 }
 
 int main( int argc, char *argv[] )
@@ -167,8 +167,8 @@ int main( int argc, char *argv[] )
     int opt_offset=parse_options( argc, argv );
 
     if( opt_offset<0 ) {
-	// There was some error
-	show_help();
+        // There was some error
+        show_help();
 
         return -(opt_offset+1); // -1 becomes 0, -2 becomes 1 etc.
     }
@@ -191,20 +191,20 @@ int runprogram( int argc, char *argv[] )
     masterpt=posix_openpt(O_RDWR);
 
     if( masterpt==-1 ) {
-	perror("Failed to get a pseudo terminal");
+        perror("Failed to get a pseudo terminal");
 
-	return RETURN_RUNTIME_ERROR;
+        return RETURN_RUNTIME_ERROR;
     }
 
     if( grantpt( masterpt )!=0 ) {
-	perror("Failed to change pseudo terminal's permission");
+        perror("Failed to change pseudo terminal's permission");
 
-	return RETURN_RUNTIME_ERROR;
+        return RETURN_RUNTIME_ERROR;
     }
     if( unlockpt( masterpt )!=0 ) {
-	perror("Failed to unlock pseudo terminal");
+        perror("Failed to unlock pseudo terminal");
 
-	return RETURN_RUNTIME_ERROR;
+        return RETURN_RUNTIME_ERROR;
     }
 
     ourtty=open("/dev/tty", 0);
@@ -216,81 +216,81 @@ int runprogram( int argc, char *argv[] )
 
     int childpid=fork();
     if( childpid==0 ) {
-	// Child
+        // Child
 
-	// Detach us from the current TTY
-	setsid();
-	
-	const char *name=ptsname(masterpt);
-	int slavept;
+        // Detach us from the current TTY
+        setsid();
+
+        const char *name=ptsname(masterpt);
+        int slavept;
         slavept=open(name, O_RDWR ); // This line makes the ptty our controlling tty. We do not otherwise need it open
         // On separate line to confuse gcc into not giving a (technically correct) "unused variable" warning.
         // This place used to have: close( slavept );
         // We do not run the above line. See comment 3.1416 later for explanation
 
-	close( masterpt );
+        close( masterpt );
 
-	char **new_argv=malloc(sizeof(char *)*(argc+1));
+        char **new_argv=malloc(sizeof(char *)*(argc+1));
 
-	int i;
+        int i;
 
-	for( i=0; i<argc; ++i ) {
-	    new_argv[i]=argv[i];
-	}
+        for( i=0; i<argc; ++i ) {
+            new_argv[i]=argv[i];
+        }
 
-	new_argv[i]=NULL;
+        new_argv[i]=NULL;
 
-	execvp( new_argv[0], new_argv );
+        execvp( new_argv[0], new_argv );
 
-	perror("sshpass: Failed to run command");
+        perror("sshpass: Failed to run command");
 
-	exit(RETURN_RUNTIME_ERROR);
+        exit(RETURN_RUNTIME_ERROR);
     } else if( childpid<0 ) {
-	perror("sshpass: Failed to create child process");
+        perror("sshpass: Failed to create child process");
 
-	return RETURN_RUNTIME_ERROR;
+        return RETURN_RUNTIME_ERROR;
     }
-	
+
     // We are the parent
     int status=0;
     int terminate=0;
     pid_t wait_id;
     do {
-	if( !terminate ) {
-	    fd_set readfd;
+        if( !terminate ) {
+            fd_set readfd;
 
-	    FD_ZERO(&readfd);
-	    FD_SET(masterpt, &readfd);
+            FD_ZERO(&readfd);
+            FD_SET(masterpt, &readfd);
 
-	    int selret=select( masterpt+1, &readfd, NULL, NULL, NULL );
+            int selret=select( masterpt+1, &readfd, NULL, NULL, NULL );
 
-	    if( selret>0 ) {
-		if( FD_ISSET( masterpt, &readfd ) ) {
+            if( selret>0 ) {
+                if( FD_ISSET( masterpt, &readfd ) ) {
                     int ret;
-		    if( (ret=handleoutput( masterpt )) ) {
-			// Authentication failed or any other error
+                    if( (ret=handleoutput( masterpt )) ) {
+                        // Authentication failed or any other error
 
                         // handleoutput returns positive error number in case of some error, and a negative value
                         // if all that happened is that the slave end of the pt is closed.
                         if( ret>0 )
                             close( masterpt ); // Signal ssh that it's controlling TTY is now closed
 
-			terminate=ret;
-		    }
-		}
-	    }
-	    wait_id=waitpid( childpid, &status, WNOHANG );
-	} else {
-	    wait_id=waitpid( childpid, &status, 0 );
-	}
+                        terminate=ret;
+                    }
+                }
+            }
+            wait_id=waitpid( childpid, &status, WNOHANG );
+        } else {
+            wait_id=waitpid( childpid, &status, 0 );
+        }
     } while( wait_id==0 || (!WIFEXITED( status ) && !WIFSIGNALED( status )) );
 
     if( terminate>0 )
-	return terminate;
+        return terminate;
     else if( WIFEXITED( status ) )
-	return WEXITSTATUS(status);
+        return WEXITSTATUS(status);
     else
-	return 255;
+        return 255;
 }
 
 int match( const char *reference, const char *buffer, ssize_t bufsize, int state );
@@ -356,13 +356,13 @@ int match( const char *reference, const char *buffer, ssize_t bufsize, int state
     // This is a highly simplisic implementation. It's good enough for matching "Password: ", though.
     int i;
     for( i=0;reference[state]!='\0' && i<bufsize; ++i ) {
-	if( reference[state]==buffer[i] )
-	    state++;
-	else {
-	    state=0;
-	    if( reference[state]==buffer[i] )
-		state++;
-	}
+        if( reference[state]==buffer[i] )
+            state++;
+        else {
+            state=0;
+            if( reference[state]==buffer[i] )
+                state++;
+        }
     }
 
     return state;
@@ -375,25 +375,25 @@ void write_yes(int fd){
 void write_pass( int fd )
 {
     switch( args.pwtype ) {
-    case PWT_STDIN:
-	write_pass_fd( STDIN_FILENO, fd );
-	break;
-    case PWT_FD:
-	write_pass_fd( args.pwsrc.fd, fd );
-	break;
-    case PWT_FILE:
-	{
-	    int srcfd=open( args.pwsrc.filename, O_RDONLY );
-	    if( srcfd!=-1 ) {
-		write_pass_fd( srcfd, fd );
-		close( srcfd );
-	    }
-	}
-	break;
-    case PWT_PASS:
-	write( fd, args.pwsrc.password, strlen( args.pwsrc.password ) );
-	write( fd, "\n", 1 );
-	break;
+        case PWT_STDIN:
+            write_pass_fd( STDIN_FILENO, fd );
+            break;
+        case PWT_FD:
+            write_pass_fd( args.pwsrc.fd, fd );
+            break;
+        case PWT_FILE:
+            {
+                int srcfd=open( args.pwsrc.filename, O_RDONLY );
+                if( srcfd!=-1 ) {
+                    write_pass_fd( srcfd, fd );
+                    close( srcfd );
+                }
+            }
+            break;
+        case PWT_PASS:
+            write( fd, args.pwsrc.password, strlen( args.pwsrc.password ) );
+            write( fd, "\n", 1 );
+            break;
     }
 }
 
@@ -403,16 +403,16 @@ void write_pass_fd( int srcfd, int dstfd )
     int done=0;
 
     while( !done ) {
-	char buffer[40];
-	int i;
-	int numread=read( srcfd, buffer, sizeof(buffer) );
-	done=(numread<1);
-	for( i=0; i<numread && !done; ++i ) {
-	    if( buffer[i]!='\n' )
-		write( dstfd, buffer+i, 1 );
-	    else
-		done=1;
-	}
+        char buffer[40];
+        int i;
+        int numread=read( srcfd, buffer, sizeof(buffer) );
+        done=(numread<1);
+        for( i=0; i<numread && !done; ++i ) {
+            if( buffer[i]!='\n' )
+                write( dstfd, buffer+i, 1 );
+            else
+                done=1;
+        }
     }
 
     write( dstfd, "\n", 1 );
